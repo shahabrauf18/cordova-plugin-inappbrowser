@@ -24,22 +24,38 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONArray;
 import org.json.JSONException;
 
+import android.Manifest;
+import android.annotation.TargetApi;
+import android.app.Activity;
+import android.os.Build;
+import android.support.v4.app.ActivityCompat;
+import android.support.v4.content.ContextCompat;
+import android.util.Log;
 import android.webkit.JsPromptResult;
+import android.webkit.PermissionRequest;
 import android.webkit.WebChromeClient;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
 import android.webkit.GeolocationPermissions.Callback;
+import android.widget.Toast;
 
 public class InAppChromeClient extends WebChromeClient {
 
     private CordovaWebView webView;
+    private Activity activity;
     private String LOG_TAG = "InAppChromeClient";
     private long MAX_QUOTA = 100 * 1024 * 1024;
+    private PermissionRequest myRequest;
+    private Callback mGeoLocationCallback;
+    private String mGeoLocationRequestOrigin;
+    private int CAMERA_REQUEST_CODE = 1235;
+    private int LOCATION_REQUEST_CODE = 1236;
 
-    public InAppChromeClient(CordovaWebView webView) {
+    public InAppChromeClient(CordovaWebView webView, Activity activity) {
         super();
         this.webView = webView;
+        this.activity = activity;
     }
     /**
      * Handle database quota exceeded notification.
@@ -68,7 +84,91 @@ public class InAppChromeClient extends WebChromeClient {
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin, Callback callback) {
         super.onGeolocationPermissionsShowPrompt(origin, callback);
-        callback.invoke(origin, true, false);
+        mGeoLocationRequestOrigin = null;
+        mGeoLocationCallback = null;
+        askLocationPermission(LOCATION_REQUEST_CODE, origin, callback);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    @Override
+    public void onPermissionRequest(PermissionRequest request) {
+        myRequest = request;
+        String[] permissions = request.getResources();
+        for (int ind =0 ; ind < permissions.length ; ind++) {
+            if (permissions[ind].equals(PermissionRequest.RESOURCE_VIDEO_CAPTURE)){
+                askCameraPermission(CAMERA_REQUEST_CODE);
+            }
+        }
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public final void askCameraPermission(int requestCode) {
+        if (ContextCompat.checkSelfPermission(activity, "android.permission.CAMERA") != 0) {
+            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.CAMERA"}, requestCode);
+        } else {
+            activity.runOnUiThread((() -> {
+                if (myRequest !=null)
+                    myRequest.grant(myRequest.getResources());
+
+            }));
+        }
+
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public final void askLocationPermission(int requestCode, final String origin, final Callback callback) {
+        if (ContextCompat.checkSelfPermission(activity, "android.permission.ACCESS_FINE_LOCATION") != 0) {
+            mGeoLocationRequestOrigin = origin;
+            mGeoLocationCallback = callback;
+            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.ACCESS_FINE_LOCATION"}, requestCode);
+        } else {
+            activity.runOnUiThread((() -> {
+                if (callback != null) {
+                    callback.invoke(origin, true, true);
+                }
+            }));
+        }
+
+    }
+
+    public void onRequestPermissionsResult(int requestCode, String[] permissions,  int[] grantResults) {
+        if (requestCode == this.CAMERA_REQUEST_CODE) {
+            this.resolveCameraRequest(grantResults);
+        } else if (requestCode == this.LOCATION_REQUEST_CODE) {
+            this.resolveLocationRequest(grantResults);
+        }
+
+    }
+
+    private final void resolveLocationRequest(int[] grantResults) {
+        if (grantResults.length > 0 && grantResults[0] == 0) {
+            activity.runOnUiThread((() -> {
+                if (mGeoLocationCallback != null) {
+                    mGeoLocationCallback.invoke(mGeoLocationRequestOrigin, true, true);
+                }
+
+            }));
+        } else {
+            Callback var10000 = this.mGeoLocationCallback;
+            if (var10000 != null) {
+                var10000.invoke(this.mGeoLocationRequestOrigin, false, false);
+            }
+        }
+
+    }
+
+    @TargetApi(21)
+    private final void resolveCameraRequest(int[] grantResults) {
+        Log.d("WebView", "PERMISSION FOR CAMERA");
+        if (grantResults.length > 0 && grantResults[0] == 0) {
+            activity.runOnUiThread((() -> {
+                PermissionRequest var10000 = myRequest;
+                if (myRequest != null) {
+                    myRequest.grant(myRequest.getResources());
+                }
+
+            }));
+        }
     }
 
     /**
@@ -104,7 +204,7 @@ public class InAppChromeClient extends WebChromeClient {
             if(defaultValue.startsWith("gap-iab://")) {
                 PluginResult scriptResult;
                 String scriptCallbackId = defaultValue.substring(10);
-                if (scriptCallbackId.matches("^InAppBrowser[0-9]{1,10}$")) {
+                if (scriptCallbackId.startsWith("InAppBrowser")) {
                     if(message == null || message.length() == 0) {
                         scriptResult = new PluginResult(PluginResult.Status.OK, new JSONArray());
                     } else {
@@ -118,14 +218,9 @@ public class InAppChromeClient extends WebChromeClient {
                     result.confirm("");
                     return true;
                 }
-                else {
-                    // Anything else that doesn't look like InAppBrowser0123456789 should end up here
-                    LOG.w(LOG_TAG, "InAppBrowser callback called with invalid callbackId : "+ scriptCallbackId);
-                    result.cancel();
-                    return true;
-                }
             }
-            else {
+            else
+            {
                 // Anything else with a gap: prefix should get this message
                 LOG.w(LOG_TAG, "InAppBrowser does not support Cordova API calls: " + url + " " + defaultValue); 
                 result.cancel();
