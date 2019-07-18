@@ -837,7 +837,7 @@ public class InAppBrowser extends CordovaPlugin {
                 inAppWebView.setLayoutParams(new LinearLayout.LayoutParams(LayoutParams.MATCH_PARENT, LayoutParams.MATCH_PARENT));
                 inAppWebView.setId(Integer.valueOf(6));
                 // File Chooser Implemented ChromeClient
-                chromeClient = new InAppChromeClient(thatWebView, cordova.getActivity()) {
+                chromeClient = new InAppChromeClient(thatWebView, cordova.getActivity(), cordova, InAppBrowser.this) {
                     // For Android 5.0+
                     public boolean onShowFileChooser (WebView webView, ValueCallback<Uri[]> filePathCallback, WebChromeClient.FileChooserParams fileChooserParams)
                     {
@@ -1045,7 +1045,7 @@ public class InAppBrowser extends CordovaPlugin {
     }
 
     @Override
-    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) throws JSONException {
+    public void onRequestPermissionResult(int requestCode, String[] permissions, int[] grantResults) {
         chromeClient.onRequestPermissionsResult(requestCode, permissions, grantResults);
     }
 

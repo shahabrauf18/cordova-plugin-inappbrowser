@@ -32,6 +32,7 @@ import android.webkit.WebChromeClient;
 import android.webkit.WebStorage;
 import android.webkit.WebView;
 
+import org.apache.cordova.CordovaInterface;
 import org.apache.cordova.CordovaWebView;
 import org.apache.cordova.LOG;
 import org.apache.cordova.PluginResult;
@@ -42,6 +43,8 @@ public class InAppChromeClient extends WebChromeClient {
 
     private CordovaWebView webView;
     private Activity activity;
+    private CordovaInterface cordova;
+    private InAppBrowser inAppBrowser;
     private String LOG_TAG = "InAppChromeClient";
     private long MAX_QUOTA = 100 * 1024 * 1024;
     private PermissionRequest myRequest;
@@ -50,10 +53,12 @@ public class InAppChromeClient extends WebChromeClient {
     private int CAMERA_REQUEST_CODE = 1235;
     private int LOCATION_REQUEST_CODE = 1236;
 
-    public InAppChromeClient(CordovaWebView webView, Activity activity) {
+    public InAppChromeClient(CordovaWebView webView, Activity activity, CordovaInterface cordova, InAppBrowser inAppBrowser) {
         super();
         this.webView = webView;
         this.activity = activity;
+        this.cordova = cordova;
+        this.inAppBrowser = inAppBrowser;
     }
     /**
      * Handle database quota exceeded notification.
@@ -81,22 +86,17 @@ public class InAppChromeClient extends WebChromeClient {
      */
     @Override
     public void onGeolocationPermissionsShowPrompt(String origin, Callback callback) {
+        Log.d("PermissionsShowPrompt", "Invoked");
         mGeoLocationRequestOrigin = null;
         mGeoLocationCallback = null;
         askLocationPermission(LOCATION_REQUEST_CODE, origin, callback);
-        Log.d("PermissionsShowPrompt", "Invoked");
     }
 
-
-
-    @Override
-    public void onGeolocationPermissionsHidePrompt() {
-        super.onGeolocationPermissionsHidePrompt();
-    }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     @Override
     public void onPermissionRequest(PermissionRequest request) {
+        Log.d("onPermissionRequest", "Invoked");
         myRequest = request;
         String[] permissions = request.getResources();
         boolean found = false;
@@ -107,14 +107,16 @@ public class InAppChromeClient extends WebChromeClient {
             }
         }
 
-        if (!found)
+        if (!found) {
             myRequest.grant(request.getResources());
+        }
     }
+
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public final void askCameraPermission(int requestCode) {
         if (ContextCompat.checkSelfPermission(activity, "android.permission.CAMERA") != 0) {
-            ActivityCompat.requestPermissions(activity, new String[]{"android.permission.CAMERA"}, requestCode);
+            cordova.requestPermissions(inAppBrowser , requestCode, new String[]{"android.permission.CAMERA"});
         } else {
             activity.runOnUiThread((() -> {
                 if (myRequest !=null)
@@ -130,7 +132,7 @@ public class InAppChromeClient extends WebChromeClient {
         if (ContextCompat.checkSelfPermission(activity, Manifest.permission.ACCESS_FINE_LOCATION) != 0) {
             mGeoLocationRequestOrigin = origin;
             mGeoLocationCallback = callback;
-            ActivityCompat.requestPermissions(activity, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION}, requestCode);
+            cordova.requestPermissions(inAppBrowser,requestCode, new String[]{Manifest.permission.ACCESS_FINE_LOCATION, Manifest.permission.ACCESS_COARSE_LOCATION});
         } else {
             activity.runOnUiThread((() -> {
                 if (callback != null) {
