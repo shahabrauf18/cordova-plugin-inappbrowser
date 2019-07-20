@@ -23,6 +23,8 @@
 #import "CDVWKInAppBrowserUIDelegate.h"
 #import "CDVInAppBrowserOptions.h"
 #import "CDVInAppBrowserNavigationController.h"
+#import "QRScanner.h"
+#import "QRScannerViewController.h"
 
 @class CDVWKInAppBrowserViewController;
 

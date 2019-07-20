@@ -26,6 +26,7 @@
 #import <Cordova/CDVPluginResult.h>
 #import <Cordova/CDVUserAgentUtil.h>
 
+
 #define    kInAppBrowserTargetSelf @"_self"
 #define    kInAppBrowserTargetSystem @"_system"
 #define    kInAppBrowserTargetBlank @"_blank"
@@ -153,7 +154,7 @@ static CDVWKInAppBrowser* instance = nil;
             isAtLeastiOS11 = true;
         }
 #endif
-            
+        
         if(isAtLeastiOS11){
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
             // Deletes all cookies
@@ -169,16 +170,16 @@ static CDVWKInAppBrowser* instance = nil;
             // https://stackoverflow.com/a/31803708/777265
             // Only deletes domain cookies (not session cookies)
             [dataStore fetchDataRecordsOfTypes:[WKWebsiteDataStore allWebsiteDataTypes]
-             completionHandler:^(NSArray<WKWebsiteDataRecord *> * __nonnull records) {
-                 for (WKWebsiteDataRecord *record  in records){
-                     NSSet<NSString*>* dataTypes = record.dataTypes;
-                     if([dataTypes containsObject:WKWebsiteDataTypeCookies]){
-                         [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:record.dataTypes
-                               forDataRecords:@[record]
-                               completionHandler:^{}];
-                     }
-                 }
-             }];
+                             completionHandler:^(NSArray<WKWebsiteDataRecord *> * __nonnull records) {
+                                 for (WKWebsiteDataRecord *record  in records){
+                                     NSSet<NSString*>* dataTypes = record.dataTypes;
+                                     if([dataTypes containsObject:WKWebsiteDataTypeCookies]){
+                                         [[WKWebsiteDataStore defaultDataStore] removeDataOfTypes:record.dataTypes
+                                                                                   forDataRecords:@[record]
+                                                                                completionHandler:^{}];
+                                     }
+                                 }
+                             }];
         }
     }
     
@@ -206,7 +207,7 @@ static CDVWKInAppBrowser* instance = nil;
             NSLog(@"clearsessioncache not available below iOS 11.0");
         }
     }
-
+    
     if (self.inAppBrowserViewController == nil) {
         NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
         NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
@@ -326,7 +327,7 @@ static CDVWKInAppBrowser* instance = nil;
             [tmpWindow setWindowLevel:UIWindowLevelNormal];
             
             if(!initHidden || osVersion < 11){
-            [tmpWindow makeKeyAndVisible];
+                [tmpWindow makeKeyAndVisible];
             }
             [tmpController presentViewController:nav animated:!noAnimate completion:nil];
         }
@@ -383,7 +384,7 @@ static CDVWKInAppBrowser* instance = nil;
 - (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command
 {
     NSString* urlStr = [command argumentAtIndex:0];
-
+    
     if ([_beforeload isEqualToString:@""]) {
         NSLog(@"unexpected loadAfterBeforeload called without feature beforeload=get|post");
     }
@@ -395,7 +396,7 @@ static CDVWKInAppBrowser* instance = nil;
         NSLog(@"loadAfterBeforeload called with nil argument, ignoring.");
         return;
     }
-
+    
     NSURL* url = [NSURL URLWithString:urlStr];
     //_beforeload = @"";
     _waitForBeforeload = NO;
@@ -521,20 +522,73 @@ static CDVWKInAppBrowser* instance = nil;
     BOOL useBeforeLoad = NO;
     NSString* httpMethod = navigationAction.request.HTTPMethod;
     NSString* errorMessage = nil;
+    NSString* baseUrl = url.host;
+    NSString* scheme = url.scheme;
+    NSURLRequest *request = navigationAction.request;
+    
+    // Golooto Changes starts
+    if (url != nil){
+        
+        NSArray <NSString *> *components =  [[request.URL absoluteString] componentsSeparatedByString:@"/"];
+        
+        NSString *component = components.lastObject;
+        
+        if ([components containsObject:@"qrCode"]){
+            
+            decisionHandler(WKNavigationActionPolicyAllow);
+            return;
+        }
+        else if ([component isEqualToString:@"scanner?ref=index"] || [component isEqualToString:@"scanner?ref=detail"]){
+            
+            decisionHandler(WKNavigationActionPolicyCancel);
+            
+            //self.stringURL = "https://webview.staging.golootlo.pk/home?data=golootlo9"
+            
+            NSString * strURL =  [NSString stringWithFormat:@"%@://%@",scheme,baseUrl];
+            
+            QRScannerViewController *vc = [[QRScannerViewController alloc] initWith:strURL controller:self.inAppBrowserViewController];
+            
+            if (self.inAppBrowserViewController.navigationController != nil){
+            
+                [self.inAppBrowserViewController.navigationController pushViewController:vc animated:true];
+            }else{
+                
+                [self.inAppBrowserViewController presentViewController:vc animated:true completion:nil];
+            }
+            
+            return;
+        }else if ([component containsString:@"data"]){
+            
+           
+            if ( theWebView.backForwardList.backList.count > 0){
+                
+                [theWebView goToBackForwardListItem:theWebView.backForwardList.backList.firstObject];
+                
+                decisionHandler(WKNavigationActionPolicyCancel);
+                return;
+            }
+        }
+    }
+    // Golooto Changes ends
+
+    
+    ///decisionHandler(WKNavigationActionPolicyAllow);
+    
+    
     
     if([_beforeload isEqualToString:@"post"]){
         //TODO handle POST requests by preserving POST data then remove this condition
         errorMessage = @"beforeload doesn't yet support POST requests";
     }
     else if(isTopLevelNavigation && (
-           [_beforeload isEqualToString:@"yes"]
-       || ([_beforeload isEqualToString:@"get"] && [httpMethod isEqualToString:@"GET"])
-    // TODO comment in when POST requests are handled
-    // || ([_beforeload isEqualToString:@"post"] && [httpMethod isEqualToString:@"POST"])
-    )){
+                                     [_beforeload isEqualToString:@"yes"]
+                                     || ([_beforeload isEqualToString:@"get"] && [httpMethod isEqualToString:@"GET"])
+                                     // TODO comment in when POST requests are handled
+                                     // || ([_beforeload isEqualToString:@"post"] && [httpMethod isEqualToString:@"POST"])
+                                     )){
         useBeforeLoad = YES;
     }
-
+    
     // When beforeload, on first URL change, initiate JS callback. Only after the beforeload event, continue.
     if (_waitForBeforeload && useBeforeLoad) {
         CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
@@ -568,7 +622,7 @@ static CDVWKInAppBrowser* instance = nil;
         
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
     }
-
+    
     if (useBeforeLoad) {
         _waitForBeforeload = YES;
     }
@@ -628,7 +682,7 @@ static CDVWKInAppBrowser* instance = nil;
 - (void)didStartProvisionalNavigation:(WKWebView*)theWebView
 {
     NSLog(@"didStartProvisionalNavigation");
-//    self.inAppBrowserViewController.currentURL = theWebView.URL;
+    //    self.inAppBrowserViewController.currentURL = theWebView.URL;
 }
 
 - (void)didFinishNavigation:(WKWebView*)theWebView
@@ -732,6 +786,42 @@ BOOL isExiting = FALSE;
     //NSLog(@"dealloc");
 }
 
+-(WKWebViewConfiguration*)getGolootloConfig{
+    
+    NSLog(@"In Golootlo Config Method");
+    
+    NSString *currentPosition = @"navigator.geolocation.getCurrentPosition = function(success, error, options) { localStorage.setItem('abc',success); alert(success) };";
+    
+    
+    WKUserScript * locationScript = [[WKUserScript alloc] initWithSource:currentPosition injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:false];
+    
+    NSString * callPostionMethod = @"window.webkit.messageHandlers.locationHandler.postMessage('getCurrentPosition');";
+    
+    NSString * functionScript = @"function didUpadteLocation(coordinates){ var successBlock = localStorage.getItem('abc'); alert(successBlock(coordinates)); successBlock(coordinates)}";
+    
+    WKUserScript * script = [[WKUserScript alloc] initWithSource:callPostionMethod injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:false];
+    
+    WKUserScript * funcScript = [[WKUserScript alloc] initWithSource:functionScript injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:false];
+    
+    
+    WKUserContentController* contentController = [[WKUserContentController alloc] init];
+    
+    [contentController addScriptMessageHandler:self name:@"locationHandler"];
+    
+    [contentController addUserScript:funcScript];
+    
+    [contentController addUserScript:locationScript];
+    
+    [contentController addUserScript:script];
+    
+    
+    WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
+    config.userContentController = contentController;
+    config.websiteDataStore =  [WKWebsiteDataStore nonPersistentDataStore];//
+    
+    return config;
+}
+
 - (void)createViews
 {
     // We create the views in code for primarily for ease of upgrades and not requiring an external .xib to be included
@@ -762,7 +852,7 @@ BOOL isExiting = FALSE;
     }
     
     
-
+    
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
     
     [self.view addSubview:self.webView];
@@ -785,9 +875,9 @@ BOOL isExiting = FALSE;
     self.webView.allowsBackForwardNavigationGestures = NO;
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
-   if (@available(iOS 11.0, *)) {
-	   [self.webView.scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
-   }
+    if (@available(iOS 11.0, *)) {
+        [self.webView.scrollView setContentInsetAdjustmentBehavior:UIScrollViewContentInsetAdjustmentNever];
+    }
 #endif
     
     self.spinner = [[UIActivityIndicatorView alloc] initWithActivityIndicatorStyle:UIActivityIndicatorViewStyleGray];
@@ -829,10 +919,10 @@ BOOL isExiting = FALSE;
     self.toolbar.opaque = NO;
     self.toolbar.userInteractionEnabled = YES;
     if (_browserOptions.toolbarcolor != nil) { // Set toolbar color if user sets it in options
-      self.toolbar.barTintColor = [self colorFromHexString:_browserOptions.toolbarcolor];
+        self.toolbar.barTintColor = [self colorFromHexString:_browserOptions.toolbarcolor];
     }
     if (!_browserOptions.toolbartranslucent) { // Set toolbar translucent to no if user sets it in options
-      self.toolbar.translucent = NO;
+        self.toolbar.translucent = NO;
     }
     
     CGFloat labelInset = 5.0;
@@ -872,17 +962,17 @@ BOOL isExiting = FALSE;
     self.forwardButton.enabled = YES;
     self.forwardButton.imageInsets = UIEdgeInsetsZero;
     if (_browserOptions.navigationbuttoncolor != nil) { // Set button color if user sets it in options
-      self.forwardButton.tintColor = [self colorFromHexString:_browserOptions.navigationbuttoncolor];
+        self.forwardButton.tintColor = [self colorFromHexString:_browserOptions.navigationbuttoncolor];
     }
-
+    
     NSString* backArrowString = NSLocalizedString(@"◄", nil); // create arrow from Unicode char
     self.backButton = [[UIBarButtonItem alloc] initWithTitle:backArrowString style:UIBarButtonItemStylePlain target:self action:@selector(goBack:)];
     self.backButton.enabled = YES;
     self.backButton.imageInsets = UIEdgeInsetsZero;
     if (_browserOptions.navigationbuttoncolor != nil) { // Set button color if user sets it in options
-      self.backButton.tintColor = [self colorFromHexString:_browserOptions.navigationbuttoncolor];
+        self.backButton.tintColor = [self colorFromHexString:_browserOptions.navigationbuttoncolor];
     }
-
+    
     // Filter out Navigation Buttons if user requests so
     if (_browserOptions.hidenavigationbuttons) {
         if (_browserOptions.lefttoright) {
@@ -1210,7 +1300,7 @@ BOOL isExiting = FALSE;
     
     [self.navigationDelegate didFinishNavigation:theWebView];
 }
-    
+
 - (void)webView:(WKWebView*)theWebView failedNavigation:(NSString*) delegateName withError:(nonnull NSError *)error{
     // log fail message, stop spinner, update back/forward
     NSLog(@"webView:%@ - %ld: %@", delegateName, (long)error.code, [error localizedDescription]);
@@ -1228,7 +1318,7 @@ BOOL isExiting = FALSE;
 {
     [self webView:theWebView failedNavigation:@"didFailNavigation" withError:error];
 }
-    
+
 - (void)webView:(WKWebView*)theWebView didFailProvisionalNavigation:(null_unspecified WKNavigation *)navigation withError:(nonnull NSError *)error
 {
     [self webView:theWebView failedNavigation:@"didFailProvisionalNavigation" withError:error];
@@ -1236,6 +1326,18 @@ BOOL isExiting = FALSE;
 
 #pragma mark WKScriptMessageHandler delegate
 - (void)userContentController:(nonnull WKUserContentController *)userContentController didReceiveScriptMessage:(nonnull WKScriptMessage *)message {
+    
+    // Golootlo web view changes
+    if ([message.name isEqualToString:@"locationHandler"]) {
+        
+        //CLLocation *location = self.currentLocation
+        
+        [[self webView] evaluateJavaScript:@"__LATITUDE__ = 24.8558681" completionHandler:nil];
+        
+        [[self webView] evaluateJavaScript:@"__LONGITUDE__ = 67.0422487" completionHandler:nil];
+        
+    }
+    
     if (![message.name isEqualToString:IAB_BRIDGE_NAME]) {
         return;
     }
@@ -1243,6 +1345,13 @@ BOOL isExiting = FALSE;
     [self.navigationDelegate userContentController:userContentController didReceiveScriptMessage:message];
 }
 
+// For golootlo Webview changes
+-(void)webView:(WKWebView *)webView didCommitNavigation:(WKNavigation *)navigation{
+    
+    NSString *javascript = @"var meta = document.createElement('meta');meta.setAttribute('name', 'viewport');meta.setAttribute('content', 'width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no');document.getElementsByTagName('head')[0].appendChild(meta);";
+    
+    [webView evaluateJavaScript:javascript completionHandler:nil];
+}
 #pragma mark CDVScreenOrientationDelegate
 
 - (BOOL)shouldAutorotate
