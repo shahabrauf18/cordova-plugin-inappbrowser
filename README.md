@@ -27,6 +27,10 @@ description: Open an in-app browser window.
 
 # cordova-plugin-inappbrowser
 
+To install this plugin 
+
+`cordova plugin add https://github.com/shahabrauf18/cordova-plugin-inappbrowser.git`
+
 You can show helpful articles, videos, and web resources inside of your app. Users can view web pages without leaving your app.
 
 > To get a few ideas, check out the [sample](#sample) at the bottom of this page or go straight to the [reference](#reference) content.
