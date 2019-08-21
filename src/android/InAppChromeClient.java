@@ -157,6 +157,7 @@ public class InAppChromeClient extends WebChromeClient {
             activity.runOnUiThread((() -> {
                 if (mGeoLocationCallback != null) {
                     mGeoLocationCallback.invoke(mGeoLocationRequestOrigin, true, true);
+                    inAppBrowser.inAppWebView.reload();
                 }
 
             }));
