@@ -88,6 +88,10 @@
             </feature>
         </config-file>
 
+        <header-file src="src/ios/QRScanner.h" />
+	    <source-file src="src/ios/QRScanner.m" />
+        <header-file src="src/ios/QRScannerViewController.h" />
+	    <source-file src="src/ios/QRScannerViewController.m" />
         <header-file src="src/ios/CDVInAppBrowser.h" />
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
         <header-file src="src/ios/CDVInAppBrowserOptions.h" />
