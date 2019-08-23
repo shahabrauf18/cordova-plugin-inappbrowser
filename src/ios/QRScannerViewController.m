@@ -122,7 +122,7 @@
     
     CDVWKInAppBrowserViewController *vc =  (CDVWKInAppBrowserViewController*)self.controller;
     
-    NSString *strUrl = [NSString stringWithFormat:@"%@/scanner?ref=index&qrCode=%@",self.baseUrl, code];
+    NSString *strUrl = [NSString stringWithFormat:@"%@/scanner?ref=index&qrCode=%@&client=ios",self.baseUrl, code];
     
     strUrl = [strUrl stringByAddingPercentEncodingWithAllowedCharacters:NSCharacterSet.URLQueryAllowedCharacterSet];
     NSURL * url = [[NSURL alloc] initWithString:strUrl];

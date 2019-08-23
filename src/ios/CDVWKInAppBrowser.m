@@ -63,6 +63,7 @@ static CDVWKInAppBrowser* instance = nil;
     _callbackIdPattern = nil;
     _beforeload = @"";
     _waitForBeforeload = NO;
+    
 }
 
 - (id)settingForKey:(NSString*)key
@@ -790,14 +791,14 @@ BOOL isExiting = FALSE;
     
     NSLog(@"In Golootlo Config Method");
     
-    NSString *currentPosition = @"navigator.geolocation.getCurrentPosition = function(success, error, options) { localStorage.setItem('abc',success); alert(success) };";
+    NSString *currentPosition = @"navigator.geolocation.getCurrentPosition = function(success, error, options) {  };";
     
     
     WKUserScript * locationScript = [[WKUserScript alloc] initWithSource:currentPosition injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:false];
     
     NSString * callPostionMethod = @"window.webkit.messageHandlers.locationHandler.postMessage('getCurrentPosition');";
     
-    NSString * functionScript = @"function didUpadteLocation(coordinates){ var successBlock = localStorage.getItem('abc'); alert(successBlock(coordinates)); successBlock(coordinates)}";
+    NSString * functionScript = @"function didUpadteLocation(coordinates){ successBlock(coordinates)}";
     
     WKUserScript * script = [[WKUserScript alloc] initWithSource:callPostionMethod injectionTime:WKUserScriptInjectionTimeAtDocumentEnd forMainFrameOnly:false];
     
@@ -817,7 +818,7 @@ BOOL isExiting = FALSE;
     
     WKWebViewConfiguration *config = [[WKWebViewConfiguration alloc] init];
     config.userContentController = contentController;
-    config.websiteDataStore =  [WKWebsiteDataStore nonPersistentDataStore];//
+   // config.websiteDataStore =  [WKWebsiteDataStore nonPersistentDataStore];//
     
     return config;
 }
@@ -829,10 +830,10 @@ BOOL isExiting = FALSE;
     CGRect webViewBounds = self.view.bounds;
     BOOL toolbarIsAtBottom = ![_browserOptions.toolbarposition isEqualToString:kInAppBrowserToolbarBarPositionTop];
     webViewBounds.size.height -= _browserOptions.location ? FOOTER_HEIGHT : TOOLBAR_HEIGHT;
-    WKUserContentController* userContentController = [[WKUserContentController alloc] init];
+    //WKUserContentController* userContentController = [[WKUserContentController alloc] init];
     
-    WKWebViewConfiguration* configuration = [[WKWebViewConfiguration alloc] init];
-    configuration.userContentController = userContentController;
+    WKWebViewConfiguration* configuration = [self getGolootloConfig];//[[WKWebViewConfiguration alloc] init];
+    //configuration.userContentController = userContentController;
 #if __has_include("CDVWKProcessPoolFactory.h")
     configuration.processPool = [[CDVWKProcessPoolFactory sharedFactory] sharedProcessPool];
 #endif
@@ -852,6 +853,7 @@ BOOL isExiting = FALSE;
     }
     
     
+    configuration.websiteDataStore = [WKWebsiteDataStore defaultDataStore];
     
     self.webView = [[WKWebView alloc] initWithFrame:webViewBounds configuration:configuration];
     
@@ -873,6 +875,8 @@ BOOL isExiting = FALSE;
     [self.webView setAutoresizingMask:UIViewAutoresizingFlexibleHeight | UIViewAutoresizingFlexibleWidth];
     self.webView.allowsLinkPreview = NO;
     self.webView.allowsBackForwardNavigationGestures = NO;
+    [self.webView addObserver:self forKeyPath:@"URL" options:NSKeyValueObservingOptionNew context:nil];
+   
     
 #if __IPHONE_OS_VERSION_MAX_ALLOWED >= 110000
     if (@available(iOS 11.0, *)) {
@@ -997,6 +1001,55 @@ BOOL isExiting = FALSE;
     [self.webView setFrame:frame];
 }
 
+-(void)observeValueForKeyPath:(NSString *)keyPath ofObject:(id)object change:(NSDictionary<NSKeyValueChangeKey,id> *)change context:(void *)context{
+    
+    if (_webView != nil && [_webView URL] != nil) {
+        
+        NSURL *url = [_webView URL];
+        NSString* baseUrl = url.host;
+        NSString* scheme = url.scheme;
+        
+        NSArray<NSString*> *components = [[url absoluteString] componentsSeparatedByString:@"/"];
+        
+        NSString * lastComponent = components.lastObject;
+        
+        if ( lastComponent != nil && [lastComponent containsString:@"qrCode"]){
+            
+            // decisionHandler(WKNavigationActionPolicy.allow)
+            return;
+        }else if ((lastComponent != nil && [lastComponent hasPrefix:@"scanner?ref=index"]) || [lastComponent hasPrefix:@"scanner?ref=detail"]){
+            
+            //decisionHandler(WKNavigationActionPolicy.cancel)
+            
+            //self.stringURL = "https://webview.staging.golootlo.pk/home?data=golootlo9"
+            //self.webView?.stopLoading()
+            NSString * strURL =  [NSString stringWithFormat:@"%@://%@",scheme,baseUrl];
+            
+            QRScannerViewController *vc = [[QRScannerViewController alloc] initWith:strURL controller:self];
+            
+            if (self.navigationController != nil){
+                
+                [self.navigationController pushViewController:vc animated:true];
+            }else{
+                
+                [self presentViewController:vc animated:true completion:nil];
+            }
+            
+            return;
+
+        }
+//        else if (lastComponent != nil && [lastComponent containsString:@"data"]){
+//            
+//            if self.webView?.backForwardList.backList.count ?? -1 > 0{
+//                self.webView?.go(to: (self.webView?.backForwardList.backList.first)!)
+//                //decisionHandler(WKNavigationActionPolicy.cancel)
+//                self.webView?.stopLoading()
+//                return
+//            }
+//        }
+    }
+    
+}
 - (void)setCloseButtonTitle:(NSString*)title : (NSString*) colorString : (int) buttonIndex
 {
     // the advantage of using UIBarButtonSystemItemDone is the system will localize it for you automatically

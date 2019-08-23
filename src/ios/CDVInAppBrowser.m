@@ -49,11 +49,12 @@
         return;
     }
     self.usewkwebview = browserOptions.usewkwebview;
-    if(self.usewkwebview){
-        [[CDVWKInAppBrowser getInstance] open:command];
-    }else{
-        [[CDVUIInAppBrowser getInstance] open:command];
-    }
+     [[CDVWKInAppBrowser getInstance] open:command];
+//    if(self.usewkwebview){
+//        [[CDVWKInAppBrowser getInstance] open:command];
+//    }else{
+//        [[CDVUIInAppBrowser getInstance] open:command];
+//    }
 }
 
 - (void)close:(CDVInvokedUrlCommand*)command
