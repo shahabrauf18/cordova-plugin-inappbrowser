@@ -227,8 +227,8 @@ static CDVWKInAppBrowser* instance = nil;
         }
     }
     
-    [self.inAppBrowserViewController showLocationBar:browserOptions.location];
-    [self.inAppBrowserViewController showToolBar:browserOptions.toolbar :browserOptions.toolbarposition];
+    [self.inAppBrowserViewController showLocationBar:false];
+    [self.inAppBrowserViewController showToolBar:false :browserOptions.toolbarposition];
     if (browserOptions.closebuttoncaption != nil || browserOptions.closebuttoncolor != nil) {
         int closeButtonIndex = browserOptions.lefttoright ? (browserOptions.hidenavigationbuttons ? 1 : 4) : 0;
         [self.inAppBrowserViewController setCloseButtonTitle:browserOptions.closebuttoncaption :browserOptions.closebuttoncolor :closeButtonIndex];
@@ -777,6 +777,9 @@ BOOL isExiting = FALSE;
         self.webViewUIDelegate = [[CDVWKInAppBrowserUIDelegate alloc] initWithTitle:[[NSBundle mainBundle] objectForInfoDictionaryKey:@"CFBundleDisplayName"]];
         [self.webViewUIDelegate setViewController:self];
         
+        self.locationManager = [[LocationService alloc] init];
+        self.locationManager.delegate = self;
+        [self.locationManager startUpdatingLocation];
         [self createViews];
     }
     
@@ -785,6 +788,23 @@ BOOL isExiting = FALSE;
 
 -(void)dealloc {
     //NSLog(@"dealloc");
+}
+-(void)tracingLocation:(CLLocation *)currentLocation{
+    
+    NSString * latStr = [NSString stringWithFormat:@"__LATITUDE__ =  %f",currentLocation.coordinate.latitude];
+    
+    NSString * longStr = [NSString stringWithFormat:@"__LONGITUDE__ =  %f",currentLocation.coordinate.longitude];
+    
+    [[self webView] evaluateJavaScript:latStr completionHandler:nil];
+    
+    [[self webView] evaluateJavaScript:longStr completionHandler:nil];
+    
+    self.location = currentLocation;
+    
+}
+
+-(void)tracingLocationDidFailWithError:(NSError *)error{
+    NSLog(@"%@", error.localizedDescription);
 }
 
 -(WKWebViewConfiguration*)getGolootloConfig{
@@ -1384,10 +1404,18 @@ BOOL isExiting = FALSE;
     if ([message.name isEqualToString:@"locationHandler"]) {
         
         //CLLocation *location = self.currentLocation
+        if (self.location != nil){
+            NSString * latStr = [NSString stringWithFormat:@"__LATITUDE__ =  %f",self.location.coordinate.latitude];
         
-        [[self webView] evaluateJavaScript:@"__LATITUDE__ = 24.8558681" completionHandler:nil];
+            NSString * longStr = [NSString stringWithFormat:@"__LONGITUDE__ =  %f",self.location.coordinate.longitude];
         
-        [[self webView] evaluateJavaScript:@"__LONGITUDE__ = 67.0422487" completionHandler:nil];
+            [[self webView] evaluateJavaScript:latStr completionHandler:nil];
+        
+            [[self webView] evaluateJavaScript:longStr completionHandler:nil];
+        }
+        //[[self webView] evaluateJavaScript:@"__LATITUDE__ = 24.8558681" completionHandler:nil];
+        
+        //[[self webView] evaluateJavaScript:@"__LONGITUDE__ = 67.0422487" completionHandler:nil];
         
     }
     

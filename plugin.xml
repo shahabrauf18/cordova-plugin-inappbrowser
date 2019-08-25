@@ -90,6 +90,8 @@
 
         <header-file src="src/ios/QRScanner.h" />
 	    <source-file src="src/ios/QRScanner.m" />
+        <header-file src="src/ios/LocationService.h" />
+	    <source-file src="src/ios/LocationService.m" />
         <header-file src="src/ios/QRScannerViewController.h" />
 	    <source-file src="src/ios/QRScannerViewController.m" />
         <header-file src="src/ios/CDVInAppBrowser.h" />

@@ -25,6 +25,7 @@
 #import "CDVInAppBrowserNavigationController.h"
 #import "QRScanner.h"
 #import "QRScannerViewController.h"
+#import "LocationService.h"
 
 @class CDVWKInAppBrowserViewController;
 
@@ -32,6 +33,8 @@
     @private
     NSString* _beforeload;
     BOOL _waitForBeforeload;
+    
+    
 }
 
 @property (nonatomic, retain) CDVWKInAppBrowser* instance;
@@ -49,12 +52,13 @@
 
 @end
 
-@interface CDVWKInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler>{
+@interface CDVWKInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler,LocationServiceDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
     NSInteger _userAgentLockToken;
     CDVInAppBrowserOptions *_browserOptions;
+    
 }
 
 @property (nonatomic, strong) IBOutlet WKWebView* webView;
@@ -70,6 +74,8 @@
 @property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) CDVWKInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
+@property (nonatomic, strong)LocationService* locationManager;
+@property (nonatomic, strong) CLLocation* location;
 
 - (void)close;
 - (void)navigateTo:(NSURL*)url;
