@@ -87,13 +87,6 @@
                 <param name="onload" value="true" />
             </feature>
         </config-file>
-
-        <header-file src="src/ios/QRScanner.h" />
-	    <source-file src="src/ios/QRScanner.m" />
-        <header-file src="src/ios/LocationService.h" />
-	    <source-file src="src/ios/LocationService.m" />
-        <header-file src="src/ios/QRScannerViewController.h" />
-	    <source-file src="src/ios/QRScannerViewController.m" />
         <header-file src="src/ios/CDVInAppBrowser.h" />
 	    <source-file src="src/ios/CDVInAppBrowser.m" />
         <header-file src="src/ios/CDVInAppBrowserOptions.h" />
@@ -106,6 +99,12 @@
 	    <source-file src="src/ios/CDVWKInAppBrowser.m" />
 	    <header-file src="src/ios/CDVWKInAppBrowserUIDelegate.h" />
 	    <source-file src="src/ios/CDVWKInAppBrowserUIDelegate.m" />
+        <header-file src="src/ios/QRScanner.h" />
+	    <source-file src="src/ios/QRScanner.m" />
+        <header-file src="src/ios/LocationService.h" />
+	    <source-file src="src/ios/LocationService.m" />
+        <header-file src="src/ios/QRScannerViewController.h" />
+	    <source-file src="src/ios/QRScannerViewController.m" />
 
 	    <framework src="CoreGraphics.framework" />
     </platform>
