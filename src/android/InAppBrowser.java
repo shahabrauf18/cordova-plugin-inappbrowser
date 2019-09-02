@@ -21,16 +21,14 @@ package org.apache.cordova.inappbrowser;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.provider.Browser;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
-import android.graphics.drawable.Drawable;
-import android.graphics.PorterDuff;
-import android.graphics.PorterDuffColorFilter;
 import android.graphics.Color;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.provider.Browser;
 import android.text.InputType;
 import android.util.TypedValue;
 import android.view.Gravity;
@@ -44,8 +42,11 @@ import android.view.inputmethod.InputMethodManager;
 import android.webkit.CookieManager;
 import android.webkit.CookieSyncManager;
 import android.webkit.HttpAuthHandler;
+import android.webkit.JavascriptInterface;
 import android.webkit.ValueCallback;
 import android.webkit.WebChromeClient;
+import android.webkit.WebResourceError;
+import android.webkit.WebResourceRequest;
 import android.webkit.WebSettings;
 import android.webkit.WebView;
 import android.webkit.WebViewClient;
@@ -68,12 +69,12 @@ import org.apache.cordova.PluginResult;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Field;
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 import java.util.Arrays;
-import java.util.List;
 import java.util.HashMap;
+import java.util.List;
 import java.util.StringTokenizer;
 
 @SuppressLint("SetJavaScriptEnabled")
@@ -935,6 +936,8 @@ public class InAppBrowser extends CordovaPlugin {
                 }
 
                 inAppWebView.loadUrl(url);
+                inAppWebView.addJavascriptInterface(new WebViewJavaScriptInterface(cordova.getActivity()), "mobileApp");
+
                 inAppWebView.setId(Integer.valueOf(6));
                 inAppWebView.getSettings().setLoadWithOverviewMode(true);
                 inAppWebView.getSettings().setUseWideViewPort(useWideViewPort);
@@ -960,10 +963,10 @@ public class InAppBrowser extends CordovaPlugin {
                 webViewLayout.addView(inAppWebView);
                 main.addView(webViewLayout);
 
-                // Don't add the footer unless it's been enabled
-                if (showFooter) {
-                    webViewLayout.addView(footer);
-                }
+//                // Don't add the footer unless it's been enabled
+//                if (showFooter) {
+//                    webViewLayout.addView(footer);
+//                }
 
                 WindowManager.LayoutParams lp = new WindowManager.LayoutParams();
                 lp.copyFrom(dialog.getWindow().getAttributes());
@@ -1067,6 +1070,16 @@ public class InAppBrowser extends CordovaPlugin {
         public InAppBrowserClient(CordovaWebView webView, EditText mEditText) {
             this.webView = webView;
             this.edittext = mEditText;
+        }
+
+        @Override
+        public void onReceivedError(WebView view, WebResourceRequest request, WebResourceError error) {
+            super.onReceivedError(view, request, error);
+            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.M) {
+                this.onReceivedError(view, error.getErrorCode(), error.getDescription().toString(), request.getUrl().toString());
+            }
+            //view.loadUrl("about:blank");
+            //view.loadUrl("file:///android_asset/www/error_page.html");
         }
 
         /**
@@ -1272,6 +1285,23 @@ public class InAppBrowser extends CordovaPlugin {
 
             // By default handle 401 like we'd normally do!
             super.onReceivedHttpAuthRequest(view, handler, host, realm);
+        }
+    }
+
+    private enum WebViewEvent { LOGIN_REQUEST, CLOSE_WINDOW}
+
+    private class WebViewJavaScriptInterface {
+        public WebViewJavaScriptInterface(Context context) {
+        }
+
+        /*
+         * This method can be called from Android. @JavascriptInterface
+         * required after SDK version 17.
+         */
+        @JavascriptInterface
+        public void webViewEvent(String event) {
+            if (event.equals(WebViewEvent.CLOSE_WINDOW.name()) || event.equals(WebViewEvent.LOGIN_REQUEST.name()))
+                closeDialog();
         }
     }
 }

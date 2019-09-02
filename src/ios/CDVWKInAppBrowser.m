@@ -829,6 +829,8 @@ BOOL isExiting = FALSE;
     
     [contentController addScriptMessageHandler:self name:@"locationHandler"];
     
+    [contentController addScriptMessageHandler:self name:@"webViewEvent"];
+    
     [contentController addUserScript:funcScript];
     
     [contentController addUserScript:locationScript];
@@ -1413,9 +1415,17 @@ BOOL isExiting = FALSE;
         
             [[self webView] evaluateJavaScript:longStr completionHandler:nil];
         }
-        //[[self webView] evaluateJavaScript:@"__LATITUDE__ = 24.8558681" completionHandler:nil];
         
-        //[[self webView] evaluateJavaScript:@"__LONGITUDE__ = 67.0422487" completionHandler:nil];
+    }
+    
+    if ([message.name isEqualToString:@"webViewEvent"]){
+        
+        NSDictionary *data = [message body];
+        
+        if ([data[@"event"] isEqualToString:@"LOGIN_REQUEST"] || [data[@"event"] isEqualToString:@"CLOSE_WINDOW"]){
+            
+            [self close];
+        }
         
     }
     
