@@ -19,7 +19,9 @@
 
 #import "CDVInAppBrowser.h"
 #import "CDVInAppBrowserOptions.h"
+#if !WK_WEB_VIEW_ONLY
 #import "CDVUIInAppBrowser.h"
+#endif
 #import "CDVWKInAppBrowser.h"
 #import <Cordova/CDVPluginResult.h>
 
@@ -145,7 +147,7 @@
 //    }else{
 //        [[CDVUIInAppBrowser getInstance] loadAfterBeforeload:command];
 //    }
-}
+ }
 
 
 @end

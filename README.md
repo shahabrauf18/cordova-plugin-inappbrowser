@@ -260,7 +260,7 @@ function loadStopCallBack() {
 
     if (inAppBrowserRef != undefined) {
 
-        inAppBrowserRef.insertCSS({ code: "body{font-size: 25px;" });
+        inAppBrowserRef.insertCSS({ code: "body{font-size: 25px;}" });
 
         inAppBrowserRef.executeScript({ code: "\
             var message = 'this is the message';\
@@ -625,7 +625,7 @@ function loadStopCallBack() {
 
     if (inAppBrowserRef != undefined) {
 
-        inAppBrowserRef.insertCSS({ code: "body{font-size: 25px;" });
+        inAppBrowserRef.insertCSS({ code: "body{font-size: 25px;}" });
 
         $('#status-message').text("");
 
