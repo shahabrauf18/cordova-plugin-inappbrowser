@@ -17,14 +17,11 @@
  under the License.
  */
 
-#import <Cordova/CDVPlugin.h>
+#import <Cordova/GScreenOrientationDelegate.h>
 
-@interface CDVInAppBrowser : CDVPlugin {
-}
 
-@property (nonatomic, copy) NSString* callbackId;
+@interface GInAppBrowserNavigationController : UINavigationController
 
-- (void)open:(CDVInvokedUrlCommand*)command;
+@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
 
 @end
-

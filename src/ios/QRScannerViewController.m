@@ -120,7 +120,7 @@
 -(void)detectedCode:(NSString *)code{
     
     
-    CDVWKInAppBrowserViewController *vc =  (CDVWKInAppBrowserViewController*)self.controller;
+    GWKInAppBrowserViewController *vc =  (GWKInAppBrowserViewController*)self.controller;
     
     NSString *strUrl = [NSString stringWithFormat:@"%@/scanner?ref=index&qrCode=%@&client=ios",self.baseUrl, code];
     

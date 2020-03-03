@@ -17,16 +17,20 @@
  under the License.
  */
 
-#import <WebKit/WebKit.h>
+#import <Cordova/GPlugin.h>
+#import <Cordova/GInvokedUrlCommand.h>
 
-@interface CDVWKInAppBrowserUIDelegate : NSObject <WKUIDelegate>{
-    @private
-    UIViewController* _viewController;
-}
+@interface GInAppBrowser : GPlugin {}
 
-@property (nonatomic, copy) NSString* title;
+@property (nonatomic, assign) BOOL wkwebviewavailable;
+@property (nonatomic, assign) BOOL usewkwebview;
 
-- (instancetype)initWithTitle:(NSString*)title;
--(void) setViewController:(UIViewController*) viewController;
+- (void)open:(GInvokedUrlCommand*)command;
+- (void)close:(GInvokedUrlCommand*)command;
+- (void)injectScriptCode:(GInvokedUrlCommand*)command;
+- (void)show:(GInvokedUrlCommand*)command;
+- (void)hide:(GInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
 
 @end
+

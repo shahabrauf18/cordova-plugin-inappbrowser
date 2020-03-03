@@ -17,19 +17,19 @@
  under the License.
  */
 
-#import <Cordova/CDVPlugin.h>
-#import <Cordova/CDVInvokedUrlCommand.h>
-#import <Cordova/CDVScreenOrientationDelegate.h>
-#import "CDVWKInAppBrowserUIDelegate.h"
-#import "CDVInAppBrowserOptions.h"
-#import "CDVInAppBrowserNavigationController.h"
+#import <Cordova/GPlugin.h>
+#import <Cordova/GInvokedUrlCommand.h>
+#import <Cordova/GScreenOrientationDelegate.h>
+#import "GWKInAppBrowserUIDelegate.h"
+#import "GInAppBrowserOptions.h"
+#import "GInAppBrowserNavigationController.h"
 #import "QRScanner.h"
 #import "QRScannerViewController.h"
 #import "LocationService.h"
 
-@class CDVWKInAppBrowserViewController;
+@class GWKInAppBrowserViewController;
 
-@interface CDVWKInAppBrowser : CDVPlugin {
+@interface GWKInAppBrowser : GPlugin {
     UIWindow * tmpWindow;
 
     @private
@@ -39,27 +39,27 @@
     
 }
 
-@property (nonatomic, retain) CDVWKInAppBrowser* instance;
-@property (nonatomic, retain) CDVWKInAppBrowserViewController* inAppBrowserViewController;
+@property (nonatomic, retain) GWKInAppBrowser* instance;
+@property (nonatomic, retain) GWKInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
 
 + (id) getInstance;
-- (void)open:(CDVInvokedUrlCommand*)command;
-- (void)close:(CDVInvokedUrlCommand*)command;
-- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
-- (void)show:(CDVInvokedUrlCommand*)command;
-- (void)hide:(CDVInvokedUrlCommand*)command;
-- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command;
+- (void)open:(GInvokedUrlCommand*)command;
+- (void)close:(GInvokedUrlCommand*)command;
+- (void)injectScriptCode:(GInvokedUrlCommand*)command;
+- (void)show:(GInvokedUrlCommand*)command;
+- (void)hide:(GInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
 
 @end
 
-@interface CDVWKInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler,LocationServiceDelegate>{
+@interface GWKInAppBrowserViewController : UIViewController <GScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler,LocationServiceDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
     NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
+    GInAppBrowserOptions *_browserOptions;
     
 }
 
@@ -71,10 +71,10 @@
 @property (nonatomic, strong) IBOutlet UIBarButtonItem* forwardButton;
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView* spinner;
 @property (nonatomic, strong) IBOutlet UIToolbar* toolbar;
-@property (nonatomic, strong) IBOutlet CDVWKInAppBrowserUIDelegate* webViewUIDelegate;
+@property (nonatomic, strong) IBOutlet GWKInAppBrowserUIDelegate* webViewUIDelegate;
 
-@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
-@property (nonatomic, weak) CDVWKInAppBrowser* navigationDelegate;
+@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, weak) GWKInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 @property (nonatomic, strong)LocationService* locationManager;
 @property (nonatomic, strong) CLLocation* location;
@@ -85,6 +85,6 @@
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition;
 - (void)setCloseButtonTitle:(NSString*)title : (NSString*) colorString : (int) buttonIndex;
 
-- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions;
+- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (GInAppBrowserOptions*) browserOptions;
 
 @end

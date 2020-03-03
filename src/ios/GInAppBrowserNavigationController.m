@@ -17,11 +17,11 @@
  under the License.
  */
 
-#import "CDVInAppBrowserNavigationController.h"
+#import "GInAppBrowserNavigationController.h"
 
 #define    STATUSBAR_HEIGHT 20.0
 
-@implementation CDVInAppBrowserNavigationController : UINavigationController
+@implementation GInAppBrowserNavigationController : UINavigationController
 
 - (void) dismissViewControllerAnimated:(BOOL)flag completion:(void (^)(void))completion {
     if ( self.presentedViewController) {
@@ -53,7 +53,7 @@
     return rect;
 }
 
-#pragma mark CDVScreenOrientationDelegate
+#pragma mark GScreenOrientationDelegate
 
 - (BOOL)shouldAutorotate
 {

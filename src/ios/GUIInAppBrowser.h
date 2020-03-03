@@ -19,21 +19,21 @@
 
 #if !WK_WEB_VIEW_ONLY
 
-#import <Cordova/CDVPlugin.h>
-#import <Cordova/CDVInvokedUrlCommand.h>
-#import <Cordova/CDVScreenOrientationDelegate.h>
-#import "CDVInAppBrowserOptions.h"
-#import "CDVInAppBrowserNavigationController.h"
+#import <Cordova/GPlugin.h>
+#import <Cordova/GInvokedUrlCommand.h>
+#import <Cordova/GScreenOrientationDelegate.h>
+#import "GInAppBrowserOptions.h"
+#import "GInAppBrowserNavigationController.h"
 
 #ifdef __CORDOVA_4_0_0
-    #import <Cordova/CDVUIWebViewDelegate.h>
+    #import <Cordova/GUIWebViewDelegate.h>
 #else
-    #import <Cordova/CDVWebViewDelegate.h>
+    #import <Cordova/GWebViewDelegate.h>
 #endif
 
-@class CDVUIInAppBrowserViewController;
+@class GUIInAppBrowserViewController;
 
-@interface CDVUIInAppBrowser : CDVPlugin {
+@interface GUIInAppBrowser : GPlugin {
   UIWindow * tmpWindow;
 
   @private
@@ -41,31 +41,31 @@
   BOOL _waitForBeforeload;
 }
 
-@property (nonatomic, retain) CDVUIInAppBrowserViewController* inAppBrowserViewController;
+@property (nonatomic, retain) GUIInAppBrowserViewController* inAppBrowserViewController;
 @property (nonatomic, copy) NSString* callbackId;
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
 
 + (id) getInstance;
-- (void)open:(CDVInvokedUrlCommand*)command;
-- (void)close:(CDVInvokedUrlCommand*)command;
-- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
-- (void)show:(CDVInvokedUrlCommand*)command;
-- (void)hide:(CDVInvokedUrlCommand*)command;
-- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command;
+- (void)open:(GInvokedUrlCommand*)command;
+- (void)close:(GInvokedUrlCommand*)command;
+- (void)injectScriptCode:(GInvokedUrlCommand*)command;
+- (void)show:(GInvokedUrlCommand*)command;
+- (void)hide:(GInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
 
 @end
 
-@interface CDVUIInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
+@interface GUIInAppBrowserViewController : UIViewController <UIWebViewDelegate, GScreenOrientationDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
     NSInteger _userAgentLockToken;
-    CDVInAppBrowserOptions *_browserOptions;
+    GInAppBrowserOptions *_browserOptions;
 
 #ifdef __CORDOVA_4_0_0
-    CDVUIWebViewDelegate* _webViewDelegate;
+    GUIWebViewDelegate* _webViewDelegate;
 #else
-    CDVWebViewDelegate* _webViewDelegate;
+    GWebViewDelegate* _webViewDelegate;
 #endif
 
 }
@@ -78,8 +78,8 @@
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView* spinner;
 @property (nonatomic, strong) IBOutlet UIToolbar* toolbar;
 
-@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
-@property (nonatomic, weak) CDVUIInAppBrowser* navigationDelegate;
+@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, weak) GUIInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 
 - (void)close;
@@ -88,7 +88,7 @@
 - (void)showToolBar:(BOOL)show : (NSString *) toolbarPosition;
 - (void)setCloseButtonTitle:(NSString*)title : (NSString*) colorString : (int) buttonIndex;
 
-- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions;
+- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (GInAppBrowserOptions*) browserOptions;
 
 @end
 
