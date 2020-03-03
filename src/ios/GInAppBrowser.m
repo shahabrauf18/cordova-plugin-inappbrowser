@@ -23,7 +23,7 @@
 #import "GUIInAppBrowser.h"
 #endif
 #import "GWKInAppBrowser.h"
-#import <Cordova/GPluginResult.h>
+#import <Cordova/CDVPluginResult.h>
 
 
 #pragma mark GInAppBrowser
@@ -42,12 +42,12 @@
 #endif
 }
 
-- (void)open:(GInvokedUrlCommand*)command
+- (void)open:(CDVInvokedUrlCommand*)command
 {
     NSString* options = [command argumentAtIndex:2 withDefault:@"" andClass:[NSString class]];
     GInAppBrowserOptions* browserOptions = [GInAppBrowserOptions parseOptions:options];
     if(browserOptions.usewkwebview && !self.wkwebviewavailable){
-        [self.commandDelegate sendPluginResult:[GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsDictionary:@{@"type":@"loaderror", @"message": @"usewkwebview option specified but but no plugin that supplies a WKWebView engine is present"}] callbackId:command.callbackId];
+        [self.commandDelegate sendPluginResult:[CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsDictionary:@{@"type":@"loaderror", @"message": @"usewkwebview option specified but but no plugin that supplies a WKWebView engine is present"}] callbackId:command.callbackId];
         return;
     }
     self.usewkwebview = browserOptions.usewkwebview;
@@ -59,7 +59,7 @@
 //    }
 }
 
-- (void)close:(GInvokedUrlCommand*)command
+- (void)close:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] close:command];
 
@@ -71,7 +71,7 @@
 }
 
 
-- (void)show:(GInvokedUrlCommand*)command
+- (void)show:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] show:command];
 
@@ -82,7 +82,7 @@
 //    }
 }
 
-- (void)hide:(GInvokedUrlCommand*)command
+- (void)hide:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] hide:command];
 
@@ -94,7 +94,7 @@
 }
 
 
-- (void)injectScriptCode:(GInvokedUrlCommand*)command
+- (void)injectScriptCode:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] injectScriptCode:command];
 
@@ -105,7 +105,7 @@
 //    }
 }
 
-- (void)injectScriptFile:(GInvokedUrlCommand*)command
+- (void)injectScriptFile:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] injectScriptFile:command];
 
@@ -116,7 +116,7 @@
 //    }
 }
 
-- (void)injectStyleCode:(GInvokedUrlCommand*)command
+- (void)injectStyleCode:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] injectStyleCode:command];
 
@@ -127,7 +127,7 @@
 //    }
 }
 
-- (void)injectStyleFile:(GInvokedUrlCommand*)command
+- (void)injectStyleFile:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] injectStyleFile:command];
 
@@ -138,7 +138,7 @@
 //    }
 }
 
-- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command
+- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command
 {
     [[GWKInAppBrowser getInstance] loadAfterBeforeload:command];
 

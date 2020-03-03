@@ -19,21 +19,21 @@
 
 #if !WK_WEB_VIEW_ONLY
 
-#import <Cordova/GPlugin.h>
-#import <Cordova/GInvokedUrlCommand.h>
-#import <Cordova/GScreenOrientationDelegate.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVInvokedUrlCommand.h>
+#import <Cordova/CDVScreenOrientationDelegate.h>
 #import "GInAppBrowserOptions.h"
 #import "GInAppBrowserNavigationController.h"
 
 #ifdef __CORDOVA_4_0_0
-    #import <Cordova/GUIWebViewDelegate.h>
+    #import <Cordova/CDVUIWebViewDelegate.h>
 #else
-    #import <Cordova/GWebViewDelegate.h>
+    #import <Cordova/CDVWebViewDelegate.h>
 #endif
 
 @class GUIInAppBrowserViewController;
 
-@interface GUIInAppBrowser : GPlugin {
+@interface GUIInAppBrowser : CDVPlugin {
   UIWindow * tmpWindow;
 
   @private
@@ -46,16 +46,16 @@
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
 
 + (id) getInstance;
-- (void)open:(GInvokedUrlCommand*)command;
-- (void)close:(GInvokedUrlCommand*)command;
-- (void)injectScriptCode:(GInvokedUrlCommand*)command;
-- (void)show:(GInvokedUrlCommand*)command;
-- (void)hide:(GInvokedUrlCommand*)command;
-- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
+- (void)open:(CDVInvokedUrlCommand*)command;
+- (void)close:(CDVInvokedUrlCommand*)command;
+- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
+- (void)show:(CDVInvokedUrlCommand*)command;
+- (void)hide:(CDVInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command;
 
 @end
 
-@interface GUIInAppBrowserViewController : UIViewController <UIWebViewDelegate, GScreenOrientationDelegate>{
+@interface GUIInAppBrowserViewController : UIViewController <UIWebViewDelegate, CDVScreenOrientationDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
@@ -63,9 +63,9 @@
     GInAppBrowserOptions *_browserOptions;
 
 #ifdef __CORDOVA_4_0_0
-    GUIWebViewDelegate* _webViewDelegate;
+    CDVUIWebViewDelegate* _webViewDelegate;
 #else
-    GWebViewDelegate* _webViewDelegate;
+    CDVWebViewDelegate* _webViewDelegate;
 #endif
 
 }
@@ -78,7 +78,7 @@
 @property (nonatomic, strong) IBOutlet UIActivityIndicatorView* spinner;
 @property (nonatomic, strong) IBOutlet UIToolbar* toolbar;
 
-@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) GUIInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 

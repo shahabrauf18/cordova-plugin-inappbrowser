@@ -17,9 +17,9 @@
  under the License.
  */
 
-#import <Cordova/GPlugin.h>
-#import <Cordova/GInvokedUrlCommand.h>
-#import <Cordova/GScreenOrientationDelegate.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVInvokedUrlCommand.h>
+#import <Cordova/CDVScreenOrientationDelegate.h>
 #import "GWKInAppBrowserUIDelegate.h"
 #import "GInAppBrowserOptions.h"
 #import "GInAppBrowserNavigationController.h"
@@ -29,7 +29,7 @@
 
 @class GWKInAppBrowserViewController;
 
-@interface GWKInAppBrowser : GPlugin {
+@interface GWKInAppBrowser : CDVPlugin {
     UIWindow * tmpWindow;
 
     @private
@@ -45,16 +45,16 @@
 @property (nonatomic, copy) NSRegularExpression *callbackIdPattern;
 
 + (id) getInstance;
-- (void)open:(GInvokedUrlCommand*)command;
-- (void)close:(GInvokedUrlCommand*)command;
-- (void)injectScriptCode:(GInvokedUrlCommand*)command;
-- (void)show:(GInvokedUrlCommand*)command;
-- (void)hide:(GInvokedUrlCommand*)command;
-- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
+- (void)open:(CDVInvokedUrlCommand*)command;
+- (void)close:(CDVInvokedUrlCommand*)command;
+- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
+- (void)show:(CDVInvokedUrlCommand*)command;
+- (void)hide:(CDVInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command;
 
 @end
 
-@interface GWKInAppBrowserViewController : UIViewController <GScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler,LocationServiceDelegate>{
+@interface GWKInAppBrowserViewController : UIViewController <CDVScreenOrientationDelegate,WKNavigationDelegate,WKUIDelegate,WKScriptMessageHandler,LocationServiceDelegate>{
     @private
     NSString* _userAgent;
     NSString* _prevUserAgent;
@@ -73,7 +73,7 @@
 @property (nonatomic, strong) IBOutlet UIToolbar* toolbar;
 @property (nonatomic, strong) IBOutlet GWKInAppBrowserUIDelegate* webViewUIDelegate;
 
-@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 @property (nonatomic, weak) GWKInAppBrowser* navigationDelegate;
 @property (nonatomic) NSURL* currentURL;
 @property (nonatomic, strong)LocationService* locationManager;

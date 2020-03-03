@@ -17,14 +17,14 @@
  under the License.
  */
 
-#import <Cordova/GPlugin.h>
+#import <Cordova/CDVPlugin.h>
 
-@interface GInAppBrowser : GPlugin {
+@interface GInAppBrowser : CDVPlugin {
 }
 
 @property (nonatomic, copy) NSString* callbackId;
 
-- (void)open:(GInvokedUrlCommand*)command;
+- (void)open:(CDVInvokedUrlCommand*)command;
 
 @end
 

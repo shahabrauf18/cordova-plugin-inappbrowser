@@ -23,8 +23,8 @@
 #import "GWKProcessPoolFactory.h"
 #endif
 
-#import <Cordova/GPluginResult.h>
-#import <Cordova/GUserAgentUtil.h>
+#import <Cordova/CDVPluginResult.h>
+#import <Cordova/CDVUserAgentUtil.h>
 
 
 #define    kInAppBrowserTargetSelf @"_self"
@@ -76,7 +76,7 @@ static GWKInAppBrowser* instance = nil;
     [self close:nil];
 }
 
-- (void)close:(GInvokedUrlCommand*)command
+- (void)close:(CDVInvokedUrlCommand*)command
 {
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"IAB.close() called but it was already closed.");
@@ -96,9 +96,9 @@ static GWKInAppBrowser* instance = nil;
     return NO;
 }
 
-- (void)open:(GInvokedUrlCommand*)command
+- (void)open:(CDVInvokedUrlCommand*)command
 {
-    GPluginResult* pluginResult;
+    CDVPluginResult* pluginResult;
     
     NSString* url = [command argumentAtIndex:0];
     NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
@@ -126,9 +126,9 @@ static GWKInAppBrowser* instance = nil;
             [self openInInAppBrowser:absoluteUrl withOptions:options];
         }
         
-        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
     } else {
-        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
     }
     
     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
@@ -211,7 +211,7 @@ static GWKInAppBrowser* instance = nil;
     }
     
     if (self.inAppBrowserViewController == nil) {
-        NSString* userAgent = [GUserAgentUtil originalUserAgent];
+        NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
         NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
         NSString* appendUserAgent = [self settingForKey:@"AppendUserAgent"];
         if(overrideUserAgent){
@@ -223,8 +223,8 @@ static GWKInAppBrowser* instance = nil;
         self.inAppBrowserViewController = [[GWKInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
         self.inAppBrowserViewController.navigationDelegate = self;
         
-        if ([self.viewController conformsToProtocol:@protocol(GScreenOrientationDelegate)]) {
-            self.inAppBrowserViewController.orientationDelegate = (UIViewController <GScreenOrientationDelegate>*)self.viewController;
+        if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)]) {
+            self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
         }
     }
     
@@ -283,11 +283,11 @@ static GWKInAppBrowser* instance = nil;
     }
 }
 
-- (void)show:(GInvokedUrlCommand*)command{
+- (void)show:(CDVInvokedUrlCommand*)command{
     [self show:command withNoAnimate:NO];
 }
 
-- (void)show:(GInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
+- (void)show:(CDVInvokedUrlCommand*)command withNoAnimate:(BOOL)noAnimate
 {
     BOOL initHidden = NO;
     if(command == nil && noAnimate == YES){
@@ -340,7 +340,7 @@ static GWKInAppBrowser* instance = nil;
     });
 }
 
-- (void)hide:(GInvokedUrlCommand*)command
+- (void)hide:(CDVInvokedUrlCommand*)command
 {
     // Set tmpWindow to hidden to make main webview responsive to touch again
     // https://stackoverflow.com/questions/4544489/how-to-remove-a-uiwindow
@@ -387,11 +387,11 @@ static GWKInAppBrowser* instance = nil;
 
 - (void)openInSystem:(NSURL*)url
 {
-    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:GPluginHandleOpenURLNotification object:url]];
+    [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:url]];
     [[UIApplication sharedApplication] openURL:url];
 }
 
-- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command
+- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command
 {
     NSString* urlStr = [command argumentAtIndex:0];
     
@@ -455,7 +455,7 @@ static GWKInAppBrowser* instance = nil;
     }];
 }
 
-- (void)injectScriptCode:(GInvokedUrlCommand*)command
+- (void)injectScriptCode:(CDVInvokedUrlCommand*)command
 {
     NSString* jsWrapper = nil;
     
@@ -465,7 +465,7 @@ static GWKInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectScriptFile:(GInvokedUrlCommand*)command
+- (void)injectScriptFile:(CDVInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
     
@@ -477,7 +477,7 @@ static GWKInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectStyleCode:(GInvokedUrlCommand*)command
+- (void)injectStyleCode:(CDVInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
     
@@ -489,7 +489,7 @@ static GWKInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectStyleFile:(GInvokedUrlCommand*)command
+- (void)injectStyleFile:(CDVInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
     
@@ -601,7 +601,7 @@ static GWKInAppBrowser* instance = nil;
     
     // When beforeload, on first URL change, initiate JS callback. Only after the beforeload event, continue.
     if (_waitForBeforeload && useBeforeLoad) {
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"beforeload", @"url":[url absoluteString]}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         
@@ -612,7 +612,7 @@ static GWKInAppBrowser* instance = nil;
     
     if(errorMessage != nil){
         NSLog(errorMessage);
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                       messageAsDictionary:@{@"type":@"loaderror", @"url":[url absoluteString], @"code": @"-1", @"message": errorMessage}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
@@ -626,7 +626,7 @@ static GWKInAppBrowser* instance = nil;
     }
     else if ((self.callbackId != nil) && isTopLevelNavigation) {
         // Send a loadstart event for each top-level navigation (includes redirects).
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"loadstart", @"url":[url absoluteString]}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         
@@ -654,7 +654,7 @@ static GWKInAppBrowser* instance = nil;
 #pragma mark WKScriptMessageHandler delegate
 - (void)userContentController:(nonnull WKUserContentController *)userContentController didReceiveScriptMessage:(nonnull WKScriptMessage *)message {
     
-    GPluginResult* pluginResult = nil;
+    CDVPluginResult* pluginResult = nil;
     
     if([message.body isKindOfClass:[NSDictionary class]]){
         NSDictionary* messageContent = (NSDictionary*) message.body;
@@ -665,12 +665,12 @@ static GWKInAppBrowser* instance = nil;
             NSError* __autoreleasing error = nil;
             NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[scriptResult dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
             if ((error == nil) && [decodedResult isKindOfClass:[NSArray class]]) {
-                pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
             } else {
-                pluginResult = [GPluginResult resultWithStatus:GCommandStatus_JSON_EXCEPTION];
+                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION];
             }
         } else {
-            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsArray:@[]];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
         }
         [self.commandDelegate sendPluginResult:pluginResult callbackId:scriptCallbackId];
     }else if(self.callbackId != nil){
@@ -682,7 +682,7 @@ static GWKInAppBrowser* instance = nil;
             NSMutableDictionary* dResult = [NSMutableDictionary new];
             [dResult setValue:@"message" forKey:@"type"];
             [dResult setObject:decodedResult forKey:@"data"];
-            GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsDictionary:dResult];
+            CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dResult];
             [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
             [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
         }
@@ -706,7 +706,7 @@ static GWKInAppBrowser* instance = nil;
                 url = @"";
             }
         }
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"loadstop", @"url":url}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         
@@ -725,7 +725,7 @@ static GWKInAppBrowser* instance = nil;
                 url = @"";
             }
         }
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
                                                       messageAsDictionary:@{@"type":@"loaderror", @"url":url, @"code": [NSNumber numberWithInteger:error.code], @"message": error.localizedDescription}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         
@@ -736,7 +736,7 @@ static GWKInAppBrowser* instance = nil;
 - (void)browserExit
 {
     if (self.callbackId != nil) {
-        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
+        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"exit"}];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
         self.callbackId = nil;
@@ -1239,7 +1239,7 @@ BOOL isExiting = FALSE;
 
 - (void)close
 {
-    [GUserAgentUtil releaseLock:&_userAgentLockToken];
+    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
     
     __weak UIViewController* weakSelf = self;
@@ -1263,9 +1263,9 @@ BOOL isExiting = FALSE;
         [self.webView loadRequest:request];
     } else {
         __weak GWKInAppBrowserViewController* weakSelf = self;
-        [GUserAgentUtil acquireLock:^(NSInteger lockToken) {
+        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
             _userAgentLockToken = lockToken;
-            [GUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
+            [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
             [weakSelf.webView loadRequest:request];
         }];
     }
@@ -1383,7 +1383,7 @@ BOOL isExiting = FALSE;
     //TODO webview class
     //BOOL isPDF = [@"true" isEqualToString :[theWebView evaluateJavaScript:@"document.body==null"]];
     if (isPDF) {
-        [GUserAgentUtil setUserAgent:_prevUserAgent lockToken:_userAgentLockToken];
+        [CDVUserAgentUtil setUserAgent:_prevUserAgent lockToken:_userAgentLockToken];
     }
     
     [self.navigationDelegate didFinishNavigation:theWebView];
@@ -1456,7 +1456,7 @@ BOOL isExiting = FALSE;
     
     [webView evaluateJavaScript:javascript completionHandler:nil];
 }
-#pragma mark GScreenOrientationDelegate
+#pragma mark CDVScreenOrientationDelegate
 
 - (BOOL)shouldAutorotate
 {

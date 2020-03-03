@@ -17,11 +17,11 @@
  under the License.
  */
 
-#import <Cordova/GScreenOrientationDelegate.h>
+#import <Cordova/CDVScreenOrientationDelegate.h>
 
 
 @interface GInAppBrowserNavigationController : UINavigationController
 
-@property (nonatomic, weak) id <GScreenOrientationDelegate> orientationDelegate;
+@property (nonatomic, weak) id <CDVScreenOrientationDelegate> orientationDelegate;
 
 @end

@@ -18,7 +18,7 @@
  */
 
 #import "GInAppBrowser.h"
-#import <Cordova/GPluginResult.h>
+#import <Cordova/CDVPluginResult.h>
 
 #define    kInAppBrowserTargetSelf @"_self"
 #define    kInAppBrowserTargetSystem @"_system"
@@ -43,9 +43,9 @@
     return NO;
 }
 
-- (void)open:(GInvokedUrlCommand*)command
+- (void)open:(CDVInvokedUrlCommand*)command
 {
-    GPluginResult* pluginResult;
+    CDVPluginResult* pluginResult;
 
     NSString* url = [command argumentAtIndex:0];
     NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
@@ -64,17 +64,17 @@
 
         if ([target isEqualToString:kInAppBrowserTargetSelf]) {
             //[self openInCordovaWebView:absoluteUrl withOptions:options];
-            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInCordovaWebView:absoluteUrl withOptions:options]"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInCordovaWebView:absoluteUrl withOptions:options]"];
         } else if ([target isEqualToString:kInAppBrowserTargetSystem]) {
             [self openInSystem:absoluteUrl];
-            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
         } else { // _blank or anything else
             //[self openInInAppBrowser:absoluteUrl withOptions:options];
-            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInInAppBrowser:absoluteUrl withOptions:options]"];
+            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInInAppBrowser:absoluteUrl withOptions:options]"];
         }
 
     } else {
-        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
+        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
     }
     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

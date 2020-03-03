@@ -17,20 +17,20 @@
  under the License.
  */
 
-#import <Cordova/GPlugin.h>
-#import <Cordova/GInvokedUrlCommand.h>
+#import <Cordova/CDVPlugin.h>
+#import <Cordova/CDVInvokedUrlCommand.h>
 
-@interface GInAppBrowser : GPlugin {}
+@interface GInAppBrowser : CDVPlugin {}
 
 @property (nonatomic, assign) BOOL wkwebviewavailable;
 @property (nonatomic, assign) BOOL usewkwebview;
 
-- (void)open:(GInvokedUrlCommand*)command;
-- (void)close:(GInvokedUrlCommand*)command;
-- (void)injectScriptCode:(GInvokedUrlCommand*)command;
-- (void)show:(GInvokedUrlCommand*)command;
-- (void)hide:(GInvokedUrlCommand*)command;
-- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command;
+- (void)open:(CDVInvokedUrlCommand*)command;
+- (void)close:(CDVInvokedUrlCommand*)command;
+- (void)injectScriptCode:(CDVInvokedUrlCommand*)command;
+- (void)show:(CDVInvokedUrlCommand*)command;
+- (void)hide:(CDVInvokedUrlCommand*)command;
+- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command;
 
 @end
 
