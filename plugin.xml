@@ -75,30 +75,30 @@
         </js-module>
         <config-file target="config.xml" parent="/*">
             <feature name="InAppBrowser">
-                <param name="ios-package" value="CDVInAppBrowser" />
+                <param name="ios-package" value="GInAppBrowser" />
                 <param name="onload" value="true" />
             </feature>
             <feature name="UIInAppBrowser">
-                <param name="ios-package" value="CDVUIInAppBrowser" />
+                <param name="ios-package" value="GUIInAppBrowser" />
                 <param name="onload" value="true" />
             </feature>
             <feature name="WKInAppBrowser">
-                <param name="ios-package" value="CDVWKInAppBrowser" />
+                <param name="ios-package" value="GWKInAppBrowser" />
                 <param name="onload" value="true" />
             </feature>
         </config-file>
-        <header-file src="src/ios/CDVInAppBrowser.h" />
-	    <source-file src="src/ios/CDVInAppBrowser.m" />
-        <header-file src="src/ios/CDVInAppBrowserOptions.h" />
-        <source-file src="src/ios/CDVInAppBrowserOptions.m" />
-        <header-file src="src/ios/CDVInAppBrowserNavigationController.h" />
-        <source-file src="src/ios/CDVInAppBrowserNavigationController.m" />
-	    <header-file src="src/ios/CDVUIInAppBrowser.h" />
-	    <source-file src="src/ios/CDVUIInAppBrowser.m" />
-	    <header-file src="src/ios/CDVWKInAppBrowser.h" />
-	    <source-file src="src/ios/CDVWKInAppBrowser.m" />
-	    <header-file src="src/ios/CDVWKInAppBrowserUIDelegate.h" />
-	    <source-file src="src/ios/CDVWKInAppBrowserUIDelegate.m" />
+        <header-file src="src/ios/GInAppBrowser.h" />
+	    <source-file src="src/ios/GInAppBrowser.m" />
+        <header-file src="src/ios/GInAppBrowserOptions.h" />
+        <source-file src="src/ios/GInAppBrowserOptions.m" />
+        <header-file src="src/ios/GInAppBrowserNavigationController.h" />
+        <source-file src="src/ios/GInAppBrowserNavigationController.m" />
+	    <header-file src="src/ios/GUIInAppBrowser.h" />
+	    <source-file src="src/ios/GUIInAppBrowser.m" />
+	    <header-file src="src/ios/GWKInAppBrowser.h" />
+	    <source-file src="src/ios/GWKInAppBrowser.m" />
+	    <header-file src="src/ios/GWKInAppBrowserUIDelegate.h" />
+	    <source-file src="src/ios/GWKInAppBrowserUIDelegate.m" />
         <header-file src="src/ios/QRScanner.h" />
 	    <source-file src="src/ios/QRScanner.m" />
         <header-file src="src/ios/LocationService.h" />
@@ -117,12 +117,12 @@
         </js-module>
         <config-file target="config.xml" parent="/*">
             <feature name="InAppBrowser">
-                <param name="osx-package" value="CDVInAppBrowser" />
+                <param name="osx-package" value="GInAppBrowser" />
             </feature>
         </config-file>
 
-        <header-file src="src/osx/CDVInAppBrowser.h" />
-        <source-file src="src/osx/CDVInAppBrowser.m" />
+        <header-file src="src/osx/GInAppBrowser.h" />
+        <source-file src="src/osx/GInAppBrowser.m" />
     </platform>
 
     <!-- windows -->

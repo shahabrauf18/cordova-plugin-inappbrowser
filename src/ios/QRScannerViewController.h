@@ -7,7 +7,7 @@
 //
 
 #import <UIKit/UIKit.h>
-#import "CDVWKInAppBrowser.h"
+#import "GWKInAppBrowser.h"
 
 NS_ASSUME_NONNULL_BEGIN
 

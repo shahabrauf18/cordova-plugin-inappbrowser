@@ -17,18 +17,18 @@
  under the License.
  */
 
-#import "CDVInAppBrowser.h"
-#import <Cordova/CDVPluginResult.h>
+#import "GInAppBrowser.h"
+#import <Cordova/GPluginResult.h>
 
 #define    kInAppBrowserTargetSelf @"_self"
 #define    kInAppBrowserTargetSystem @"_system"
 #define    kInAppBrowserTargetBlank @"_blank"
 
-@interface CDVInAppBrowser () {
+@interface GInAppBrowser () {
 }
 @end
 
-@implementation CDVInAppBrowser
+@implementation GInAppBrowser
 
 - (void)pluginInitialize
 {
@@ -43,9 +43,9 @@
     return NO;
 }
 
-- (void)open:(CDVInvokedUrlCommand*)command
+- (void)open:(GInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult;
+    GPluginResult* pluginResult;
 
     NSString* url = [command argumentAtIndex:0];
     NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
@@ -64,17 +64,17 @@
 
         if ([target isEqualToString:kInAppBrowserTargetSelf]) {
             //[self openInCordovaWebView:absoluteUrl withOptions:options];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInCordovaWebView:absoluteUrl withOptions:options]"];
+            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInCordovaWebView:absoluteUrl withOptions:options]"];
         } else if ([target isEqualToString:kInAppBrowserTargetSystem]) {
             [self openInSystem:absoluteUrl];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK];
         } else { // _blank or anything else
             //[self openInInAppBrowser:absoluteUrl withOptions:options];
-            pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInInAppBrowser:absoluteUrl withOptions:options]"];
+            pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"Not Yet Implemented for OSX: [self openInInAppBrowser:absoluteUrl withOptions:options]"];
         }
 
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
+        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
     }
     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
     [self.commandDelegate sendPluginResult:pluginResult callbackId:command.callbackId];

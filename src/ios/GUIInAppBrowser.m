@@ -19,9 +19,9 @@
 
 #if !WK_WEB_VIEW_ONLY
 
-#import "CDVUIInAppBrowser.h"
-#import <Cordova/CDVPluginResult.h>
-#import <Cordova/CDVUserAgentUtil.h>
+#import "GUIInAppBrowser.h"
+#import <Cordova/GPluginResult.h>
+#import <Cordova/GUserAgentUtil.h>
 
 #define    kInAppBrowserTargetSelf @"_self"
 #define    kInAppBrowserTargetSystem @"_system"
@@ -35,16 +35,16 @@
 #define    LOCATIONBAR_HEIGHT 21.0
 #define    FOOTER_HEIGHT ((TOOLBAR_HEIGHT) + (LOCATIONBAR_HEIGHT))
 
-#pragma mark CDVUIInAppBrowser
+#pragma mark GUIInAppBrowser
 
-@interface CDVUIInAppBrowser () {
+@interface GUIInAppBrowser () {
     NSInteger _previousStatusBarStyle;
 }
 @end
 
-@implementation CDVUIInAppBrowser
+@implementation GUIInAppBrowser
 
-static CDVUIInAppBrowser* instance = nil;
+static GUIInAppBrowser* instance = nil;
 
 + (id) getInstance{
     return instance;
@@ -69,7 +69,7 @@ static CDVUIInAppBrowser* instance = nil;
     [self close:nil];
 }
 
-- (void)close:(CDVInvokedUrlCommand*)command
+- (void)close:(GInvokedUrlCommand*)command
 {
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"IAB.close() called but it was already closed.");
@@ -88,9 +88,9 @@ static CDVUIInAppBrowser* instance = nil;
 	return NO;
 }
 
-- (void)open:(CDVInvokedUrlCommand*)command
+- (void)open:(GInvokedUrlCommand*)command
 {
-    CDVPluginResult* pluginResult;
+    GPluginResult* pluginResult;
 
     NSString* url = [command argumentAtIndex:0];
     NSString* target = [command argumentAtIndex:1 withDefault:kInAppBrowserTargetSelf];
@@ -118,9 +118,9 @@ static CDVUIInAppBrowser* instance = nil;
             [self openInInAppBrowser:absoluteUrl withOptions:options];
         }
 
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK];
+        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK];
     } else {
-        pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
+        pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR messageAsString:@"incorrect number of arguments"];
     }
 
     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
@@ -129,7 +129,7 @@ static CDVUIInAppBrowser* instance = nil;
 
 - (void)openInInAppBrowser:(NSURL*)url withOptions:(NSString*)options
 {
-    CDVInAppBrowserOptions* browserOptions = [CDVInAppBrowserOptions parseOptions:options];
+    GInAppBrowserOptions* browserOptions = [GInAppBrowserOptions parseOptions:options];
 
     if (browserOptions.clearcache) {
         NSHTTPCookie *cookie;
@@ -154,7 +154,7 @@ static CDVUIInAppBrowser* instance = nil;
     }
 
     if (self.inAppBrowserViewController == nil) {
-        NSString* userAgent = [CDVUserAgentUtil originalUserAgent];
+        NSString* userAgent = [GUserAgentUtil originalUserAgent];
         NSString* overrideUserAgent = [self settingForKey:@"OverrideUserAgent"];
         NSString* appendUserAgent = [self settingForKey:@"AppendUserAgent"];
         if(overrideUserAgent){
@@ -163,11 +163,11 @@ static CDVUIInAppBrowser* instance = nil;
         if(appendUserAgent){
             userAgent = [userAgent stringByAppendingString: appendUserAgent];
         }
-        self.inAppBrowserViewController = [[CDVUIInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
+        self.inAppBrowserViewController = [[GUIInAppBrowserViewController alloc] initWithUserAgent:userAgent prevUserAgent:[self.commandDelegate userAgent] browserOptions: browserOptions];
         self.inAppBrowserViewController.navigationDelegate = self;
 
-        if ([self.viewController conformsToProtocol:@protocol(CDVScreenOrientationDelegate)]) {
-            self.inAppBrowserViewController.orientationDelegate = (UIViewController <CDVScreenOrientationDelegate>*)self.viewController;
+        if ([self.viewController conformsToProtocol:@protocol(GScreenOrientationDelegate)]) {
+            self.inAppBrowserViewController.orientationDelegate = (UIViewController <GScreenOrientationDelegate>*)self.viewController;
         }
     }
 
@@ -235,7 +235,7 @@ static CDVUIInAppBrowser* instance = nil;
     }
 }
 
-- (void)show:(CDVInvokedUrlCommand*)command
+- (void)show:(GInvokedUrlCommand*)command
 {
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"Tried to show IAB after it was closed.");
@@ -248,13 +248,13 @@ static CDVUIInAppBrowser* instance = nil;
 
     _previousStatusBarStyle = [UIApplication sharedApplication].statusBarStyle;
 
-    __block CDVInAppBrowserNavigationController* nav = [[CDVInAppBrowserNavigationController alloc]
+    __block GInAppBrowserNavigationController* nav = [[GInAppBrowserNavigationController alloc]
                                    initWithRootViewController:self.inAppBrowserViewController];
     nav.orientationDelegate = self.inAppBrowserViewController;
     nav.navigationBarHidden = YES;
     nav.modalPresentationStyle = self.inAppBrowserViewController.modalPresentationStyle;
 
-    __weak CDVUIInAppBrowser* weakSelf = self;
+    __weak GUIInAppBrowser* weakSelf = self;
 
     // Run later to avoid the "took a long time" log message.
     dispatch_async(dispatch_get_main_queue(), ^{
@@ -272,7 +272,7 @@ static CDVUIInAppBrowser* instance = nil;
     });
 }
 
-- (void)hide:(CDVInvokedUrlCommand*)command
+- (void)hide:(GInvokedUrlCommand*)command
 {
     if (self.inAppBrowserViewController == nil) {
         NSLog(@"Tried to hide IAB after it was closed.");
@@ -318,12 +318,12 @@ static CDVUIInAppBrowser* instance = nil;
 - (void)openInSystem:(NSURL*)url
 {
     if ([[UIApplication sharedApplication] openURL:url] == NO) {
-        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:CDVPluginHandleOpenURLNotification object:url]];
+        [[NSNotificationCenter defaultCenter] postNotification:[NSNotification notificationWithName:GPluginHandleOpenURLNotification object:url]];
         [[UIApplication sharedApplication] openURL:url];
     }
 }
 
-- (void)loadAfterBeforeload:(CDVInvokedUrlCommand*)command
+- (void)loadAfterBeforeload:(GInvokedUrlCommand*)command
 {
     NSString* urlStr = [command argumentAtIndex:0];
 
@@ -346,7 +346,7 @@ static CDVUIInAppBrowser* instance = nil;
 
 -(void)createIframeBridge
 {
-    // Create an iframe bridge in the new document to communicate with the CDVThemeableBrowserViewController
+    // Create an iframe bridge in the new document to communicate with the GThemeableBrowserViewController
     NSString* jsIframeBridge = @"var e = _cdvIframeBridge=d.getElementById('_cdvIframeBridge'); if(!_cdvIframeBridge) {e = _cdvIframeBridge = d.createElement('iframe'); e.id='_cdvIframeBridge'; e.style.display='none'; d.body.appendChild(e);}";
     // Add the postMessage API
     NSString* jspostMessageApi = @"window.webkit={messageHandlers:{cordova_iab:{postMessage:function(message){_cdvIframeBridge.src='gap-iab://message/'+encodeURIComponent(message);}}}}";
@@ -379,7 +379,7 @@ static CDVUIInAppBrowser* instance = nil;
     }
 }
 
-- (void)injectScriptCode:(CDVInvokedUrlCommand*)command
+- (void)injectScriptCode:(GInvokedUrlCommand*)command
 {
     NSString* jsWrapper = nil;
 
@@ -389,7 +389,7 @@ static CDVUIInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectScriptFile:(CDVInvokedUrlCommand*)command
+- (void)injectScriptFile:(GInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
 
@@ -401,7 +401,7 @@ static CDVUIInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectStyleCode:(CDVInvokedUrlCommand*)command
+- (void)injectStyleCode:(GInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
 
@@ -413,7 +413,7 @@ static CDVUIInAppBrowser* instance = nil;
     [self injectDeferredObject:[command argumentAtIndex:0] withWrapper:jsWrapper];
 }
 
-- (void)injectStyleFile:(CDVInvokedUrlCommand*)command
+- (void)injectStyleFile:(GInvokedUrlCommand*)command
 {
     NSString* jsWrapper;
 
@@ -483,7 +483,7 @@ static CDVUIInAppBrowser* instance = nil;
     // and the path, if present, should be a JSON-encoded value to pass to the callback.
     if ([[url scheme] isEqualToString:@"gap-iab"]) {
         NSString* scriptCallbackId = [url host];
-        CDVPluginResult* pluginResult = nil;
+        GPluginResult* pluginResult = nil;
 
         if ([self isValidCallbackId:scriptCallbackId]) {
             NSString* scriptResult = [url path];
@@ -494,12 +494,12 @@ static CDVUIInAppBrowser* instance = nil;
                 scriptResult = [scriptResult substringFromIndex:1];
                 NSData* decodedResult = [NSJSONSerialization JSONObjectWithData:[scriptResult dataUsingEncoding:NSUTF8StringEncoding] options:kNilOptions error:&error];
                 if ((error == nil) && [decodedResult isKindOfClass:[NSArray class]]) {
-                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
+                    pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsArray:(NSArray*)decodedResult];
                 } else {
-                    pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_JSON_EXCEPTION];
+                    pluginResult = [GPluginResult resultWithStatus:GCommandStatus_JSON_EXCEPTION];
                 }
             } else {
-                pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsArray:@[]];
+                pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsArray:@[]];
             }
             [self.commandDelegate sendPluginResult:pluginResult callbackId:scriptCallbackId];
             return NO;
@@ -514,7 +514,7 @@ static CDVUIInAppBrowser* instance = nil;
                     NSMutableDictionary* dResult = [NSMutableDictionary new];
                     [dResult setValue:@"message" forKey:@"type"];
                     [dResult setObject:decodedResult forKey:@"data"];
-                    CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK messageAsDictionary:dResult];
+                    GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK messageAsDictionary:dResult];
                     [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
                     [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
                 }
@@ -524,7 +524,7 @@ static CDVUIInAppBrowser* instance = nil;
 
     // When beforeload, on first URL change, initiate JS callback. Only after the beforeload event, continue.
     if (_waitForBeforeload && useBeforeLoad) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"beforeload", @"url":[url absoluteString]}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         
@@ -534,7 +534,7 @@ static CDVUIInAppBrowser* instance = nil;
     
     if(errorMessage != nil){
         NSLog(errorMessage);
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR
                                                       messageAsDictionary:@{@"type":@"loaderror", @"url":[url absoluteString], @"code": @"-1", @"message": errorMessage}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
@@ -548,7 +548,7 @@ static CDVUIInAppBrowser* instance = nil;
     }
     else if ((self.callbackId != nil) && isTopLevelNavigation) {
         // Send a loadstart event for each top-level navigation (includes redirects).
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"loadstart", @"url":[url absoluteString]}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 
@@ -571,7 +571,7 @@ static CDVUIInAppBrowser* instance = nil;
     if (self.callbackId != nil) {
         // TODO: It would be more useful to return the URL the page is actually on (e.g. if it's been redirected).
         NSString* url = [self.inAppBrowserViewController.currentURL absoluteString];
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"loadstop", @"url":url}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 
@@ -583,7 +583,7 @@ static CDVUIInAppBrowser* instance = nil;
 {
     if (self.callbackId != nil) {
         NSString* url = [self.inAppBrowserViewController.currentURL absoluteString];
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_ERROR
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_ERROR
                                                       messageAsDictionary:@{@"type":@"loaderror", @"url":url, @"code": [NSNumber numberWithInteger:error.code], @"message": error.localizedDescription}];
         [pluginResult setKeepCallback:[NSNumber numberWithBool:YES]];
 
@@ -594,7 +594,7 @@ static CDVUIInAppBrowser* instance = nil;
 - (void)browserExit
 {
     if (self.callbackId != nil) {
-        CDVPluginResult* pluginResult = [CDVPluginResult resultWithStatus:CDVCommandStatus_OK
+        GPluginResult* pluginResult = [GPluginResult resultWithStatus:GCommandStatus_OK
                                                       messageAsDictionary:@{@"type":@"exit"}];
         [self.commandDelegate sendPluginResult:pluginResult callbackId:self.callbackId];
         self.callbackId = nil;
@@ -616,13 +616,13 @@ static CDVUIInAppBrowser* instance = nil;
 
 @end
 
-#pragma mark CDVUIInAppBrowserViewController
+#pragma mark GUIInAppBrowserViewController
 
-@implementation CDVUIInAppBrowserViewController
+@implementation GUIInAppBrowserViewController
 
 @synthesize currentURL;
 
-- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (CDVInAppBrowserOptions*) browserOptions
+- (id)initWithUserAgent:(NSString*)userAgent prevUserAgent:(NSString*)prevUserAgent browserOptions: (GInAppBrowserOptions*) browserOptions
 {
     self = [super init];
     if (self != nil) {
@@ -630,9 +630,9 @@ static CDVUIInAppBrowser* instance = nil;
         _prevUserAgent = prevUserAgent;
         _browserOptions = browserOptions;
 #ifdef __CORDOVA_4_0_0
-        _webViewDelegate = [[CDVUIWebViewDelegate alloc] initWithDelegate:self];
+        _webViewDelegate = [[GUIWebViewDelegate alloc] initWithDelegate:self];
 #else
-        _webViewDelegate = [[CDVWebViewDelegate alloc] initWithDelegate:self];
+        _webViewDelegate = [[GWebViewDelegate alloc] initWithDelegate:self];
 #endif
 
         [self createViews];
@@ -924,7 +924,7 @@ static CDVUIInAppBrowser* instance = nil;
 - (void)viewDidUnload
 {
     [self.webView loadHTMLString:nil baseURL:nil];
-    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+    [GUserAgentUtil releaseLock:&_userAgentLockToken];
     [super viewDidUnload];
 }
 
@@ -939,7 +939,7 @@ static CDVUIInAppBrowser* instance = nil;
 
 - (void)close
 {
-    [CDVUserAgentUtil releaseLock:&_userAgentLockToken];
+    [GUserAgentUtil releaseLock:&_userAgentLockToken];
     self.currentURL = nil;
 
     if ((self.navigationDelegate != nil) && [self.navigationDelegate respondsToSelector:@selector(browserExit)]) {
@@ -969,10 +969,10 @@ static CDVUIInAppBrowser* instance = nil;
     if (_userAgentLockToken != 0) {
         [self.webView loadRequest:request];
     } else {
-        __weak CDVUIInAppBrowserViewController* weakSelf = self;
-        [CDVUserAgentUtil acquireLock:^(NSInteger lockToken) {
+        __weak GUIInAppBrowserViewController* weakSelf = self;
+        [GUserAgentUtil acquireLock:^(NSInteger lockToken) {
             _userAgentLockToken = lockToken;
-            [CDVUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
+            [GUserAgentUtil setUserAgent:_userAgent lockToken:lockToken];
             [weakSelf.webView loadRequest:request];
         }];
     }
@@ -1072,13 +1072,13 @@ static CDVUIInAppBrowser* instance = nil;
     //    take it upon themselves to load a PDF in the background as a part of
     //    their start-up flow.
     // 2. That the PDF does not require any additional network requests. We change
-    //    the user-agent here back to that of the CDVViewController, so requests
+    //    the user-agent here back to that of the GViewController, so requests
     //    from it must pass through its white-list. This *does* break PDFs that
     //    contain links to other remote PDF/websites.
     // More info at https://issues.apache.org/jira/browse/CB-2225
     BOOL isPDF = [@"true" isEqualToString :[theWebView stringByEvaluatingJavaScriptFromString:@"document.body==null"]];
     if (isPDF) {
-        [CDVUserAgentUtil setUserAgent:_prevUserAgent lockToken:_userAgentLockToken];
+        [GUserAgentUtil setUserAgent:_prevUserAgent lockToken:_userAgentLockToken];
     }
 
     [self.navigationDelegate webViewDidFinishLoad:theWebView];
@@ -1098,7 +1098,7 @@ static CDVUIInAppBrowser* instance = nil;
     [self.navigationDelegate webView:theWebView didFailLoadWithError:error];
 }
 
-#pragma mark CDVScreenOrientationDelegate
+#pragma mark GScreenOrientationDelegate
 
 - (BOOL)shouldAutorotate
 {
